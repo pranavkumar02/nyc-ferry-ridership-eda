@@ -1,30 +1,114 @@
-# NYC Ferry Ridership Analysis
+# NYC Ferry Ridership Forecasting
 
-## Overview
-Exploratory and predictive analysis of NYC Ferry ridership to identify
-temporal demand patterns and build a forecasting model.
+Forecasting daily NYC Ferry ridership using historical transit data and machine learning.
 
-## Data
-- Source: NYC Ferry ridership data
-- Granularity: Hourly boardings
-- Cleaned and processed for ML readiness
+---
 
-## Exploratory Analysis
-- Hourly ridership peaks during commuter hours
-- Ridership highly concentrated across routes and stops
-- Weekday demand significantly exceeds weekend demand
+## 🚀 Project Overview
+This project builds an end-to-end time-series forecasting pipeline to model **daily NYC Ferry ridership**.  
+The goal is to understand demand patterns and establish a defensible baseline for forecasting using machine learning.
 
-## Dashboard
-Interactive Tableau dashboard highlighting:
-- Hourly trends
-- Route and stop concentration
-- Directional flow
+The workflow follows a production-style structure:
+- Exploratory Data Analysis (EDA)
+- Feature Engineering
+- Baseline and ensemble modeling
+- Evaluation against a naïve benchmark
 
-## Machine Learning Extension
-- Feature engineering on temporal variables
-- Baseline Random Forest model
-- XGBoost regressor for improved demand forecasting
-- Evaluation using MAE
+---
 
-## Tech Stack
+## 📊 Data
+The raw dataset contains granular NYC Ferry ridership records with route-, stop-, direction-, and time-level detail.
+
+For modeling:
+- Data is **aggregated to daily total ridership**
+- This produces a stable system-level time series suitable for forecasting
+
+---
+
+## 🔍 Exploratory Data Analysis
+Key EDA findings:
+- Strong temporal dependence in ridership
+- Clear weekly and yearly seasonality
+- Persistence effects where recent ridership strongly influences future demand
+- Temporary disruptions followed by recovery
+
+These insights motivated the use of lag-based and rolling statistical features.
+
+---
+
+## 🛠 Feature Engineering
+Features were engineered on the daily aggregated dataset to capture temporal structure:
+
+- **Calendar features**
+  - Year, month, day of week, weekend indicator
+- **Lag features**
+  - 1-day, 7-day, 14-day, and 30-day lags
+- **Rolling statistics**
+  - 7-day and 30-day rolling means
+  - 7-day rolling standard deviation
+
+All lag and rolling features are shifted to prevent target leakage.
+
+Final dataset:
+- ~3,000 daily observations
+- 12 features + target (`Boardings`)
+
+---
+
+## 🤖 Modeling
+Models evaluated:
+
+1. **Naïve Persistence Baseline**
+   - Predicts today’s ridership as yesterday’s value
+2. **Random Forest Regressor**
+   - Nonlinear ensemble baseline
+3. **Gradient Boosting Regressor**
+   - Strong tabular data benchmark
+
+---
+
+## 📈 Results
+Models were evaluated using **Mean Absolute Error (MAE)**.
+
+| Model | MAE |
+|------|-----|
+| Naïve Persistence (Lag-1) | ~4,371 |
+| Random Forest | ~3,232 |
+| Gradient Boosting | ~3,272 |
+
+Ensemble models improve MAE by **~25%** over the naïve baseline, indicating meaningful signal captured by engineered features.
+
+---
+
+## 🧠 Key Takeaways
+- Aggregation is critical when working with highly granular transit data
+- Lag and rolling features are essential for time-series forecasting with ML
+- Feature quality has a larger impact than model complexity
+- Ensemble models significantly outperform naïve persistence
+
+---
+
+## ⚠️ Limitations & Future Work
+- Use time-aware train/test splits
+- Add external data (weather, holidays, service changes)
+- Explore route-level or hierarchical forecasting
+- Compare against specialized time-series models
+
+---
+
+## 📁 Project Structure
+
 Python, Pandas, Scikit-learn, XGBoost, Tableau, VS Code
+├── data/
+│ └── ml_features_v1.csv
+├── notebooks/
+│ ├── 01_eda_nyc_ferry.ipynb
+│ ├── 02_feature_engineering.ipynb
+│ └── 03_model_training.ipynb
+└── README.md
+
+---
+
+## ▶️ How to Run
+```bash
+pip install pandas numpy scikit-learn
